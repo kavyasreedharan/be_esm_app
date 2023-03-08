@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ import com.management.employee.esmapp.service.ValidatorService;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200/")
 public class EmployeeDataController {
 	
 	Logger logger = LoggerFactory.getLogger(EmployeeDataController.class);
@@ -44,7 +46,7 @@ public class EmployeeDataController {
 		if(validatorService.validateUserFileType(file.getContentType())) {
 			responseData = employeeDataService.extractEmployeeData(file);
 		} else {
-			responseData.setResponseCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+			responseData.setResponseCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value());
 			responseData.setMessage("Input file is not in CSV format");
 		}
 

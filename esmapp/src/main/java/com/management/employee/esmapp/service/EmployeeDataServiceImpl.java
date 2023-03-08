@@ -45,7 +45,6 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 			// Reading from CSV file and adding to list
 			List<EmployeeData> employeeDataList = reader.readAll().stream()
 					.map(data-> {
-						System.out.println("data=>" + data[0]);
 						EmployeeData employeeData = new EmployeeData();
 						if(data.length == 4 && !data[0].contains("#") && !StringUtils.isEmpty(data[0]) && !StringUtils.isEmpty(data[1]) 
 								&& !StringUtils.isEmpty(data[2]) && !StringUtils.isEmpty(data[3])) {
@@ -85,17 +84,16 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 
 					// checking if user data saved to database successfully
 					if(employeeDataList.size() == employeeDataResultList.size()) {
-						return new Response(HttpStatus.OK, "User data uploaded successfully");
+						return new Response(HttpStatus.OK.value(), "User data uploaded successfully");
 					} else {
-						return new Response(HttpStatus.OK, "Unable to upload data, please try again later");
+						return new Response(HttpStatus.OK.value(), "Unable to upload data, please try again later");
 					}
 				} else {
-					return new Response(HttpStatus.OK, "Unable to upload data, please try again later");
+					return new Response(HttpStatus.OK.value(), "Unable to upload data, please try again later");
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new Response(HttpStatus.NOT_ACCEPTABLE, "Incorrect data in user data file");
+			return new Response(HttpStatus.NOT_ACCEPTABLE.value(), "Incorrect data in uploaded user data file");
 		}
 	}
 

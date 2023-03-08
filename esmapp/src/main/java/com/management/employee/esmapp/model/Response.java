@@ -1,7 +1,5 @@
 package com.management.employee.esmapp.model;
 
-import org.springframework.http.HttpStatus;
-
 import lombok.Data;
 
 /**
@@ -14,14 +12,14 @@ import lombok.Data;
 @Data
 public class Response {
 
-	private HttpStatus responseCode;
+	private int responseCode;
 	
 	private String message;
 	
 	public Response() {
 	}
 	
-	public Response(HttpStatus responseStatusCode, String message) {
+	public Response(int responseStatusCode, String message) {
 		this.responseCode = responseStatusCode;
 		this.message = message;
 	}
