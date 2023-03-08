@@ -68,7 +68,7 @@ public class EmployeeDataControllerTest {
 	
 	@Test
 	public void incorrectFileTypeTest() throws Exception {
-		try( InputStream uploadStream = EmployeeDataControllerTest.class.getClassLoader().getResourceAsStream("sample-data4.csv")){
+		try( InputStream uploadStream = EmployeeDataControllerTest.class.getClassLoader().getResourceAsStream("sample-data4.txt")){
 	    	   MockMultipartFile file = new MockMultipartFile("file", uploadStream);
 	   		MockMultipartFile multipartFile = new MockMultipartFile("file", file.getName(), file.getContentType(), file.getBytes());
 	   		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
