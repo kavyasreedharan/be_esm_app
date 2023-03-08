@@ -118,5 +118,17 @@ public class EmployeeDataControllerTest {
 	       }
 	}
 
+	@Test
+	public void uploadFileUtf8SupportTest() throws Exception {
+		try( InputStream uploadStream = EmployeeDataControllerTest.class.getClassLoader().getResourceAsStream("sample-data8.csv")){
+	    	   MockMultipartFile file = new MockMultipartFile("file", uploadStream);
+	   		MockMultipartFile multipartFile = new MockMultipartFile("file", file.getName(), file.getContentType(), file.getBytes());
+	   		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+	   		
+	   		mockMvc.perform(multipart("/users/upload").file(multipartFile)).andExpect(status().isOk());
+	       } catch(Exception e) {
+	    	   logger.error(e.getMessage());
+	       }
+	}
 
 }
