@@ -10,5 +10,7 @@ package com.management.employee.esmapp.service;
 public interface ValidatorService {
 	
 	public boolean validateUserFileType(String fileType);
+	
+	public boolean validateGetUsersDetailsRequest(int minSalary, int maxSalary, int offset, int limit, String columnHeader);
 
 }

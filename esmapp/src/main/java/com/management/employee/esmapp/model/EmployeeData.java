@@ -12,11 +12,21 @@ import lombok.Data;
 @Data
 public class EmployeeData {
 	
-	private String employeeId;
+	private String id;
 	
-	private String employeeLogin;
+	private String login;
 	
-	private String employeeName;
+	private String name;
  
-	private float employeeSalary;
+	private float salary;
+
+	public EmployeeData(String id, String login, String name, float salary) {
+		super();
+		this.id = id;
+		this.login = login;
+		this.name = name;
+		this.salary = salary;
+	}
+	
+	
 }

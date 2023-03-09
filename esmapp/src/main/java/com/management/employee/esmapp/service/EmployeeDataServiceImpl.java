@@ -8,11 +8,15 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.management.employee.esmapp.entity.EmployeeData;
+import com.management.employee.esmapp.model.EmployeeDataResponse;
 import com.management.employee.esmapp.model.Response;
 import com.management.employee.esmapp.repository.EmployeeDataRepo;
 import com.opencsv.CSVReader;
@@ -48,11 +52,11 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 						EmployeeData employeeData = new EmployeeData();
 						if(data.length == 4 && !data[0].contains("#") && !StringUtils.isEmpty(data[0]) && !StringUtils.isEmpty(data[1]) 
 								&& !StringUtils.isEmpty(data[2]) && !StringUtils.isEmpty(data[3])) {
-							employeeData.setEmployeeId(data[0]);
-							employeeData.setEmployeeLogin(data[1]);
-							employeeData.setEmployeeName(data[2]);
+							employeeData.setId(data[0]);
+							employeeData.setLogin(data[1]);
+							employeeData.setName(data[2]);
 							if(Float.parseFloat(data[3]) >= 0) { // checking if salary is greater than 0
-								employeeData.setEmployeeSalary(Float.parseFloat(data[3]));
+								employeeData.setSalary(Float.parseFloat(data[3]));
 							} else { // incorrect or empty data
 								throw new NullPointerException();
 							}
@@ -67,7 +71,7 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 					.collect(Collectors.toList());
 
 			// removing null objects which may have inserted for commented lines
-			employeeDataList.removeIf(emp -> emp.getEmployeeId() == null);
+			employeeDataList.removeIf(emp -> emp.getId() == null);
 
 			// checking for empty file contents
 			if(employeeDataList.size() == 0) {
@@ -95,6 +99,36 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 		} catch (Exception e) {
 			return new Response(HttpStatus.NOT_ACCEPTABLE.value(), "Incorrect data in uploaded user data file");
 		}
+	}
+
+	/**
+	 * This method is to fetch all the data for get users details API
+	 * @param minSalary
+	 * @param maxSalary
+	 * @param offset
+	 * @param limit
+	 * @param columnHeader
+	 * @return validation result
+	 */
+	@Override
+	public EmployeeDataResponse getUserDetails(int minSalary, int maxSalary, int offset, int limit, String columnHeader) {
+		EmployeeDataResponse responseData = new EmployeeDataResponse();
+		Pageable paging = PageRequest.of(offset, limit);	
+		List<com.management.employee.esmapp.model.EmployeeData> empDataList = new ArrayList<>();
+
+		Page<EmployeeData> userPageData = employeeDataRepo.findAll(paging);
+
+		responseData.setResponseCode(HttpStatus.OK.value());
+		empDataList = userPageData.getContent().stream()
+				.map(data ->  new com.management.employee.esmapp.model.EmployeeData(data.getId(), data.getLogin(), data.getName(), data.getSalary()))
+				.collect(Collectors.toList());
+		responseData.setMessage("Success");
+		responseData.setCurrentPage(userPageData.getNumber());
+		responseData.setTotalElements(userPageData.getTotalElements());
+		responseData.setTotalPages(userPageData.getTotalPages());
+		responseData.setResults(empDataList);
+		
+		return responseData;
 	}
 
 }

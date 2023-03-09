@@ -1,5 +1,7 @@
 package com.management.employee.esmapp.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
 import com.management.employee.esmapp.entity.EmployeeData;
@@ -11,5 +13,7 @@ import com.management.employee.esmapp.entity.EmployeeData;
  *
  */
 public interface EmployeeDataRepo extends CrudRepository<EmployeeData, String>{
+	
+	Page<EmployeeData> findAll(Pageable pageable);
 	
 }

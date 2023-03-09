@@ -18,16 +18,16 @@ import lombok.Data;
 public class EmployeeData {
 	
 	@Id
-	@Column(name = "emp_id", unique=true, nullable = false)
-	private String employeeId;
+	@Column(name = "id", unique=true, nullable = false)
+	private String id;
 	
-	@Column(name = "emp_login", unique=true, nullable = false)
-	private String employeeLogin;
+	@Column(name = "login", unique=true, nullable = false)
+	private String login;
 	
-	@Column(name = "emp_name", unique=true, nullable = false)
-	private String employeeName;
+	@Column(name = "name", unique=true, nullable = false)
+	private String name;
 	
-	@Column(name = "emp_salary", unique=true, nullable = false)
-	private float employeeSalary;
+	@Column(name = "salary", unique=true, nullable = false)
+	private float salary;
 
 }
