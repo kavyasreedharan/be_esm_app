@@ -123,9 +123,7 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 				.map(data ->  new com.management.employee.esmapp.model.EmployeeData(data.getId(), data.getLogin(), data.getName(), data.getSalary()))
 				.collect(Collectors.toList());
 		responseData.setMessage("Success");
-		responseData.setCurrentPage(userPageData.getNumber());
 		responseData.setTotalElements(userPageData.getTotalElements());
-		responseData.setTotalPages(userPageData.getTotalPages());
 		responseData.setResults(empDataList);
 		
 		return responseData;

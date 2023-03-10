@@ -16,10 +16,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 public class EmployeeDataResponse extends Response{
 	
-	private int currentPage;
-	
-	private int totalPages;
-	
 	private long totalElements;
 	
 	private List<EmployeeData> results;
