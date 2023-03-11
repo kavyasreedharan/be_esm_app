@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,13 +27,13 @@ import io.micrometer.common.util.StringUtils;
 
 /**
  * 
- * @author Kavya Sreedharan
- * This is the service implementation class for Employee Data
+ * @author Kavya Sreedharan This is the service implementation class for
+ *         Employee Data
  *
  */
 
 @Service
-public class EmployeeDataServiceImpl implements EmployeeDataService{
+public class EmployeeDataServiceImpl implements EmployeeDataService {
 
 	Logger logger = LoggerFactory.getLogger(EmployeeDataServiceImpl.class);
 
@@ -41,40 +42,41 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 
 	/**
 	 * This method will extract data from CSV file and save data to database
+	 * 
 	 * @param file
 	 * @return response
 	 */
 	public Response extractEmployeeData(MultipartFile file) {
-		try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(file.getInputStream())).withSkipLines(1).build()){
+		try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(file.getInputStream())).withSkipLines(1)
+				.build()) {
 			// Reading from CSV file and adding to list
-			List<EmployeeData> employeeDataList = reader.readAll().stream()
-					.map(data-> {
-						EmployeeData employeeData = new EmployeeData();
-						if(data.length == 4 && !data[0].contains("#") && !StringUtils.isEmpty(data[0]) && !StringUtils.isEmpty(data[1]) 
-								&& !StringUtils.isEmpty(data[2]) && !StringUtils.isEmpty(data[3])) {
-							employeeData.setId(data[0]);
-							employeeData.setLogin(data[1]);
-							employeeData.setName(data[2]);
-							if(Float.parseFloat(data[3]) >= 0) { // checking if salary is greater than 0
-								employeeData.setSalary(Float.parseFloat(data[3]));
-							} else { // incorrect or empty data
-								throw new NullPointerException();
-							}
-						} else if(data[0].contains("#")){ // ignoring lines with comments
-						} else if(data.length > 4){ // incorrect or empty data condition
-							throw new NullPointerException();
-						} else { // incorrect or empty data condition
-							throw new NullPointerException();
-						}
-						return employeeData;
-					})
-					.collect(Collectors.toList());
+			List<EmployeeData> employeeDataList = reader.readAll().stream().map(data -> {
+				EmployeeData employeeData = new EmployeeData();
+				if (data.length == 4 && !data[0].contains("#") && !StringUtils.isEmpty(data[0])
+						&& !StringUtils.isEmpty(data[1]) && !StringUtils.isEmpty(data[2])
+						&& !StringUtils.isEmpty(data[3])) {
+					employeeData.setId(data[0]);
+					employeeData.setLogin(data[1]);
+					employeeData.setName(data[2]);
+					if (Float.parseFloat(data[3]) >= 0) { // checking if salary is greater than 0
+						employeeData.setSalary(Float.parseFloat(data[3]));
+					} else { // incorrect or empty data
+						throw new NullPointerException();
+					}
+				} else if (data[0].contains("#")) { // ignoring lines with comments
+				} else if (data.length > 4) { // incorrect or empty data condition
+					throw new NullPointerException();
+				} else { // incorrect or empty data condition
+					throw new NullPointerException();
+				}
+				return employeeData;
+			}).collect(Collectors.toList());
 
 			// removing null objects which may have inserted for commented lines
 			employeeDataList.removeIf(emp -> emp.getId() == null);
 
 			// checking for empty file contents
-			if(employeeDataList.size() == 0) {
+			if (employeeDataList.size() == 0) {
 				throw new NullPointerException();
 			} else {
 				Iterable<EmployeeData> iterableEmpList = employeeDataList;
@@ -82,12 +84,12 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 				// saving data to database
 				Iterable<EmployeeData> resultList = employeeDataRepo.saveAll(iterableEmpList);
 
-				if(null != resultList) {
+				if (null != resultList) {
 					List<EmployeeData> employeeDataResultList = new ArrayList<>();
 					resultList.forEach(employeeDataResultList::add);
 
 					// checking if user data saved to database successfully
-					if(employeeDataList.size() == employeeDataResultList.size()) {
+					if (employeeDataList.size() == employeeDataResultList.size()) {
 						return new Response(HttpStatus.OK.value(), "User data uploaded successfully");
 					} else {
 						return new Response(HttpStatus.OK.value(), "Unable to upload data, please try again later");
@@ -103,6 +105,7 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 
 	/**
 	 * This method is to fetch all the data for get users details API
+	 * 
 	 * @param minSalary
 	 * @param maxSalary
 	 * @param offset
@@ -113,19 +116,33 @@ public class EmployeeDataServiceImpl implements EmployeeDataService{
 	@Override
 	public EmployeeDataResponse getUserDetails(int minSalary, int maxSalary, int offset, int limit, String columnHeader) {
 		EmployeeDataResponse responseData = new EmployeeDataResponse();
-		Pageable paging = PageRequest.of(offset, limit);	
-		List<com.management.employee.esmapp.model.EmployeeData> empDataList = new ArrayList<>();
+		Pageable paging = PageRequest.of(offset, limit);
 
-		Page<EmployeeData> userPageData = employeeDataRepo.findAll(paging);
+		try {
+			String sortField = columnHeader.substring(1, columnHeader.length());
+			String orderType = columnHeader.substring(0, 1);
 
-		responseData.setResponseCode(HttpStatus.OK.value());
-		empDataList = userPageData.getContent().stream()
-				.map(data ->  new com.management.employee.esmapp.model.EmployeeData(data.getId(), data.getLogin(), data.getName(), data.getSalary()))
-				.collect(Collectors.toList());
-		responseData.setMessage("Success");
-		responseData.setTotalElements(userPageData.getTotalElements());
-		responseData.setResults(empDataList);
-		
+			if("+".equals(orderType)) { 
+				paging = PageRequest.of(offset, limit, Sort.by(sortField).ascending());
+			} else { 
+				paging = PageRequest.of(offset, limit, Sort.by(sortField).descending()); 
+			}
+
+			List<com.management.employee.esmapp.model.EmployeeData> empDataList = new ArrayList<>();
+
+			Page<EmployeeData> userPageData = employeeDataRepo.findBySalaryBetween(paging, minSalary, maxSalary);
+
+			responseData.setResponseCode(HttpStatus.OK.value());
+			empDataList = userPageData.getContent().stream()
+					.map(data -> new com.management.employee.esmapp.model.EmployeeData(data.getId(), data.getLogin(),
+							data.getName(), data.getSalary()))
+					.collect(Collectors.toList());
+			responseData.setMessage("Success");
+			responseData.setTotalElements(userPageData.getTotalElements());
+			responseData.setResults(empDataList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return responseData;
 	}
 

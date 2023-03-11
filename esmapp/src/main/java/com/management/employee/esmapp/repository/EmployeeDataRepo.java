@@ -14,6 +14,6 @@ import com.management.employee.esmapp.entity.EmployeeData;
  */
 public interface EmployeeDataRepo extends CrudRepository<EmployeeData, String>{
 	
-	Page<EmployeeData> findAll(Pageable pageable);
+	Page<EmployeeData> findBySalaryBetween(Pageable pageable, float minSalary, float maxSalary);
 	
 }
