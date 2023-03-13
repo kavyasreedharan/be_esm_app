@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.management.employee.esmapp.entity.EmployeeData;
+import com.management.employee.esmapp.entity.EmployeeDataEntity;
 import com.management.employee.esmapp.model.EmployeeDataResponse;
 import com.management.employee.esmapp.model.Response;
 import com.management.employee.esmapp.repository.EmployeeDataRepo;
@@ -50,8 +50,8 @@ public class EmployeeDataServiceImpl implements EmployeeDataService {
 		try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(file.getInputStream())).withSkipLines(1)
 				.build()) {
 			// Reading from CSV file and adding to list
-			List<EmployeeData> employeeDataList = reader.readAll().stream().map(data -> {
-				EmployeeData employeeData = new EmployeeData();
+			List<EmployeeDataEntity> employeeDataList = reader.readAll().stream().map(data -> {
+				EmployeeDataEntity employeeData = new EmployeeDataEntity();
 				if (data.length == 4 && !data[0].contains("#") && !StringUtils.isEmpty(data[0])
 						&& !StringUtils.isEmpty(data[1]) && !StringUtils.isEmpty(data[2])
 						&& !StringUtils.isEmpty(data[3])) {
@@ -79,13 +79,13 @@ public class EmployeeDataServiceImpl implements EmployeeDataService {
 			if (employeeDataList.size() == 0) {
 				throw new NullPointerException();
 			} else {
-				Iterable<EmployeeData> iterableEmpList = employeeDataList;
+				Iterable<EmployeeDataEntity> iterableEmpList = employeeDataList;
 
 				// saving data to database
-				Iterable<EmployeeData> resultList = employeeDataRepo.saveAll(iterableEmpList);
+				Iterable<EmployeeDataEntity> resultList = employeeDataRepo.saveAll(iterableEmpList);
 
 				if (null != resultList) {
-					List<EmployeeData> employeeDataResultList = new ArrayList<>();
+					List<EmployeeDataEntity> employeeDataResultList = new ArrayList<>();
 					resultList.forEach(employeeDataResultList::add);
 
 					// checking if user data saved to database successfully
@@ -130,7 +130,7 @@ public class EmployeeDataServiceImpl implements EmployeeDataService {
 
 			List<com.management.employee.esmapp.model.EmployeeData> empDataList = new ArrayList<>();
 
-			Page<EmployeeData> userPageData = employeeDataRepo.findBySalaryBetween(paging, minSalary, maxSalary);
+			Page<EmployeeDataEntity> userPageData = employeeDataRepo.findBySalaryBetween(paging, minSalary, maxSalary);
 
 			responseData.setResponseCode(HttpStatus.OK.value());
 			empDataList = userPageData.getContent().stream()

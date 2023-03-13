@@ -19,6 +19,9 @@ public class EmployeeData {
 	private String name;
  
 	private float salary;
+	
+	public EmployeeData() {
+	}
 
 	public EmployeeData(String id, String login, String name, float salary) {
 		super();

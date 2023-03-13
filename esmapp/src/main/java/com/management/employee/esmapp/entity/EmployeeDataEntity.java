@@ -15,7 +15,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "esm_employee_data")
-public class EmployeeData {
+public class EmployeeDataEntity {
 	
 	@Id
 	@Column(name = "id", unique=true, nullable = false)
@@ -29,5 +29,16 @@ public class EmployeeData {
 	
 	@Column(name = "salary", nullable = false)
 	private float salary;
+	
+	public EmployeeDataEntity() {
+	}
+	
+	public EmployeeDataEntity(String id, String login, String name, float salary) {
+		this.id = id;
+		this.login = login;
+		this.name = name;
+		this.salary = salary;
+		// TODO Auto-generated constructor stub
+	}
 
 }

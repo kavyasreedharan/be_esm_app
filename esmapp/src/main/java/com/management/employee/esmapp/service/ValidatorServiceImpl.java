@@ -27,7 +27,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 	 * @return validation result
 	 */
 	@Override
-	public boolean validateUserFileType(String fileType) {
+	public boolean validateEmployeeFileType(String fileType) {
 		logger.info("Content type => " + fileType);
 		if(!StringUtils.isEmpty(fileType) && fileType.equals("text/csv")) {
 			return true;
@@ -46,7 +46,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 	 * @return validation result
 	 */
 	@Override
-	public boolean validateGetUsersDetailsRequest(int minSalary, int maxSalary, int offset, int limit, String columnHeader) {
+	public boolean validateGetEmployeeDetailsRequest(int minSalary, int maxSalary, int offset, int limit, String columnHeader) {
 		if(minSalary >=0 && maxSalary > 0 && offset >= 0 && limit > 0) {
 			if(!StringUtils.isEmpty(columnHeader) &&Stream.of("id","login", "name", "salary").anyMatch(columnHeader.substring(1, columnHeader.length())::equalsIgnoreCase)) {
 				logger.info("Get users API request parameters validated successfully");

@@ -19,6 +19,8 @@ public class EmployeeDataResponse extends Response{
 	private long totalElements;
 	
 	private List<EmployeeData> results;
+	
+	private EmployeeData empDataRecord;
 
 	
 }
