@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.management.employee.esmapp.controller.EmployeeDataController;
+import com.management.employee.esmapp.model.EmployeeData;
 
 /**
  * 
@@ -19,7 +19,7 @@ import com.management.employee.esmapp.controller.EmployeeDataController;
 @Service
 public class ValidatorServiceImpl implements ValidatorService {
 
-	Logger logger = LoggerFactory.getLogger(EmployeeDataController.class);
+	Logger logger = LoggerFactory.getLogger(ValidatorServiceImpl.class);
 
 	/**
 	 * This method is to validate if the content type of the uploaded file is CVS
@@ -28,7 +28,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 	 */
 	@Override
 	public boolean validateEmployeeFileType(String fileType) {
-		logger.info("Content type => " + fileType);
+		logger.info("Content type of employee file upload => " + fileType);
 		if(!StringUtils.isEmpty(fileType) && fileType.equals("text/csv")) {
 			return true;
 		} else {
@@ -37,7 +37,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 	}
 
 	/**
-	 * This method is to validate all the request parameters data in get user details API
+	 * This method is to validate all the request parameters data in get all employees details API
 	 * @param minSalary
 	 * @param maxSalary
 	 * @param offset
@@ -49,11 +49,44 @@ public class ValidatorServiceImpl implements ValidatorService {
 	public boolean validateGetEmployeeDetailsRequest(int minSalary, int maxSalary, int offset, int limit, String columnHeader) {
 		if(minSalary >=0 && maxSalary > 0 && offset >= 0 && limit > 0) {
 			if(!StringUtils.isEmpty(columnHeader) &&Stream.of("id","login", "name", "salary").anyMatch(columnHeader.substring(1, columnHeader.length())::equalsIgnoreCase)) {
-				logger.info("Get users API request parameters validated successfully");
+				logger.info("Get employees API request parameters validated successfully");
 				return true;
 			}
 		}
-		logger.error("Get users API request parameters validation failed");
+		logger.error("Get employees API request parameters validation failed");
+		return false;
+	}
+
+	/**
+	 * This method is to validate all the request parameters data in get employee details API
+	 * @param empId
+	 * @param empData
+	 * @return validation result
+	 */
+	@Override
+	public boolean validateEmployeeDataRequest(String empId, EmployeeData empData) {
+		if(!StringUtils.isEmpty(empId) && !StringUtils.isEmpty(empData.getId()) &&
+				!StringUtils.isEmpty(empData.getLogin()) && !StringUtils.isEmpty(empData.getName()) &&
+						(empData.getSalary() >= 0)) {
+				logger.info("Employees API request parameters validated successfully");
+				return true;
+			}
+		logger.error("Employees API request parameters validation failed");
+		return false;
+	}
+
+	/**
+	 * This method is to validate employee ID of API request
+	 * @param empId
+	 * @return validation result
+	 */
+	@Override
+	public boolean validateEmployeeIdDataRequest(String empId) {
+		if(!StringUtils.isEmpty(empId)) {
+				logger.info("Employee ID for  API request parameters validated successfully");
+				return true;
+			}
+		logger.error("Employee ID  for API request parameters validation failed");
 		return false;
 	}
 

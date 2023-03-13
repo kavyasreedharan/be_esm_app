@@ -90,15 +90,19 @@ public class EmployeeDataServiceImpl implements EmployeeDataService {
 
 					// checking if user data saved to database successfully
 					if (employeeDataList.size() == employeeDataResultList.size()) {
+						logger.info("Employees data in file has been saved to DB successfully, size :: " + employeeDataResultList.size());
 						return new Response(HttpStatus.OK.value(), "User data uploaded successfully");
 					} else {
+						logger.error("Error saving employees data, size :: " + employeeDataResultList.size());
 						return new Response(HttpStatus.OK.value(), "Unable to upload data, please try again later");
 					}
 				} else {
+					logger.error("Error saving employees data to DB");
 					return new Response(HttpStatus.OK.value(), "Unable to upload data, please try again later");
 				}
 			}
 		} catch (Exception e) {
+			logger.error("Error in saving file data :: " + e.getMessage());
 			return new Response(HttpStatus.NOT_ACCEPTABLE.value(), "Incorrect data in uploaded user data file");
 		}
 	}
@@ -131,7 +135,7 @@ public class EmployeeDataServiceImpl implements EmployeeDataService {
 			List<com.management.employee.esmapp.model.EmployeeData> empDataList = new ArrayList<>();
 
 			Page<EmployeeDataEntity> userPageData = employeeDataRepo.findBySalaryBetween(paging, minSalary, maxSalary);
-
+			
 			responseData.setResponseCode(HttpStatus.OK.value());
 			empDataList = userPageData.getContent().stream()
 					.map(data -> new com.management.employee.esmapp.model.EmployeeData(data.getId(), data.getLogin(),
@@ -141,8 +145,9 @@ public class EmployeeDataServiceImpl implements EmployeeDataService {
 			responseData.setTotalElements(userPageData.getTotalElements());
 			responseData.setResults(empDataList);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error in fetching employee details :: " + e.getMessage());
 		}
+		logger.info("Employees data from DB :: " + responseData);
 		return responseData;
 	}
 

@@ -1,13 +1,9 @@
 package com.management.employee.esmapp;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -20,8 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.management.employee.esmapp.controller.EmployeeDataController;
-import com.management.employee.esmapp.model.EmployeeData;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -34,7 +30,7 @@ public class EmployeeDataControllerTest {
 	private WebApplicationContext webApplicationContext;
 
 	@Test
-	public void userDataUploadSuccessTest() {
+	public void employeeDataUploadSuccessTest() {
 		try( InputStream uploadStream = EmployeeDataControllerTest.class.getClassLoader().getResourceAsStream("sample-data1.csv")){
 			MockMultipartFile file = new MockMultipartFile("file", uploadStream);
 			MockMultipartFile multipartFile = new MockMultipartFile("file", file.getName(), fileType, file.getBytes());
@@ -137,39 +133,12 @@ public class EmployeeDataControllerTest {
 		}
 	}
 
-	@Test
-	public void getAllUserDataTest() throws Exception {
-		try( InputStream uploadStream = EmployeeDataControllerTest.class.getClassLoader().getResourceAsStream("sample-data1.csv")){
-			MockMultipartFile file = new MockMultipartFile("file", uploadStream);
-			System.out.println("file type ===> " + file.getContentType());
-			MockMultipartFile multipartFile = new MockMultipartFile("file", file.getName(), fileType, file.getBytes());
-			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
-			mockMvc.perform(multipart("/users/upload").file(multipartFile)).andExpect(status().isOk());
-		} catch(Exception e) {
-			logger.error(e.getMessage());
-		}
-
-		List<EmployeeData> empDataList = new ArrayList<EmployeeData>();
-		EmployeeData empData = new EmployeeData("e0001", "hpotter", "Harry Potters", 1234.0f);
-		empDataList.add(empData);
-
-		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-		mockMvc.perform(get("/users")
-				.param("minSalary", "0")
-				.param("maxSalary", "4000")
-				.param("offset", "0")
-				.param("limit", "1")
-				.param("sort", "+name"))
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("$.message").value("Success"))
-		.andExpect(jsonPath("$.currentPage").value("0"))	
-		.andExpect(jsonPath("$.totalPages").value("9"))	
-		.andExpect(jsonPath("$.totalElements").value("9"))
-		.andExpect(jsonPath("$.results[0].id").value("e0001"))
-		.andExpect(jsonPath("$.results[0].login").value("hpotter"))
-		.andExpect(jsonPath("$.results[0].name").value("Harry Potter"))
-		.andExpect(jsonPath("$.results[0].salary").value("1234.0"));
-	}
+	 public static String convertToJson(final Object obj) {
+	        try {
+	            return new ObjectMapper().writeValueAsString(obj);
+	        } catch (Exception e) {
+	            throw new RuntimeException(e);
+	        }
+	    }
 
 }

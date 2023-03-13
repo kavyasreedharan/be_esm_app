@@ -105,7 +105,7 @@ public class EmployeeDataController {
 				responseData = employeeDataService.getUserDetails(minSalary, maxSalary, offset, limit, columnHeader);
 			} else {
 				responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				responseData.setMessage(HttpStatus.BAD_REQUEST.toString());
+				responseData.setMessage("Request validation failed");
 			}
 		} catch (Exception e) {
 			logger.error("Error in userDataUpload => " + e.getMessage());
@@ -132,33 +132,37 @@ public class EmployeeDataController {
 		Response responseData= new Response();
 		try {
 			logger.info("Employee details update for :: id = " + id);
-			
-			Optional<EmployeeDataEntity> employee = employeeDataRepo.findById(id);
-			logger.info("Checking for employee details with id in DB with result = " + employee);
-			
-			if(employee.isPresent()) {
-				Optional<EmployeeDataEntity> existingEmpLogin = employeeDataRepo.findByLogin(employeeData.getLogin());
-				logger.info("Checking for employee details with login in DB with result = " + existingEmpLogin);
+			if(validatorService.validateEmployeeDataRequest(id, employeeData)) {
+				Optional<EmployeeDataEntity> employee = employeeDataRepo.findById(id);
+				logger.info("Checking for employee details with id in DB with result = " + employee);
 				
-				if(employeeData.getLogin().equals(employee.get().getLogin()) || existingEmpLogin.isEmpty()) {
-					EmployeeDataEntity data = new EmployeeDataEntity(employeeData.getId(), 
-							employeeData.getLogin(), employeeData.getName(), employeeData.getSalary());
-					EmployeeDataEntity updatedEmpData =  employeeDataRepo.save(data);
-					logger.info("Employee data updation in DB result :: " + updatedEmpData);
-					if(null != updatedEmpData) {
-						responseData.setResponseCode(HttpStatus.OK.value());
-						responseData.setMessage("Employee data updated successfully");
+				if(employee.isPresent()) {
+					Optional<EmployeeDataEntity> existingEmpLogin = employeeDataRepo.findByLogin(employeeData.getLogin());
+					logger.info("Checking for employee details with login in DB with result = " + existingEmpLogin);
+					
+					if(employeeData.getLogin().equals(employee.get().getLogin()) || existingEmpLogin.isEmpty()) {
+						EmployeeDataEntity data = new EmployeeDataEntity(employeeData.getId(), 
+								employeeData.getLogin(), employeeData.getName(), employeeData.getSalary());
+						EmployeeDataEntity updatedEmpData =  employeeDataRepo.save(data);
+						logger.info("Employee data updation in DB result :: " + updatedEmpData);
+						if(null != updatedEmpData) {
+							responseData.setResponseCode(HttpStatus.OK.value());
+							responseData.setMessage("Employee data updated successfully");
+						} else {
+							responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
+							responseData.setMessage("Unable to save employee data. Please try again after sometime.");
+						}
 					} else {
 						responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
-						responseData.setMessage("Unable to save employee data. Please try again after sometime.");
+						responseData.setMessage("Employee login already exists. Please choose another login.");
 					}
 				} else {
 					responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
-					responseData.setMessage("Employee login already exists. Please choose another login.");
+					responseData.setMessage("Employee data does not exists with this id.");
 				}
 			} else {
 				responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				responseData.setMessage("Employee data does not exists with this id.");
+				responseData.setMessage("Request validation failed");
 			}
 		} catch (Exception e) {
 			logger.error("Error in updating employee data :: " + e.getMessage());
@@ -182,18 +186,22 @@ public class EmployeeDataController {
 		Response responseData= new Response();
 		try {
 			logger.info("Employee details delete for :: id = " + id);
-			
-			Optional<EmployeeDataEntity> employee = employeeDataRepo.findById(id);
-			logger.info("Employee details find by id result :: " + employee);
-			
-			if(employee.isPresent()) {
-				employeeDataRepo.deleteById(id);
-				logger.info("Employee details deleted successfully");
-				responseData.setResponseCode(HttpStatus.OK.value());
-				responseData.setMessage("Employee data deleted successfully");
+			if(validatorService.validateEmployeeIdDataRequest(id)) {
+				Optional<EmployeeDataEntity> employee = employeeDataRepo.findById(id);
+				logger.info("Employee details find by id result :: " + employee);
+				
+				if(employee.isPresent()) {
+					employeeDataRepo.deleteById(id);
+					logger.info("Employee details deleted successfully");
+					responseData.setResponseCode(HttpStatus.OK.value());
+					responseData.setMessage("Employee data deleted successfully");
+				} else {
+					responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
+					responseData.setMessage("Employee data does not exists with this id.");
+				}
 			} else {
 				responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				responseData.setMessage("Employee data does not exists with this id.");
+				responseData.setMessage("Request validation failed");
 			}
 		} catch (Exception e) {
 			logger.error("Error in deleteUserDetails => " + e.getMessage());
@@ -265,32 +273,39 @@ public class EmployeeDataController {
 		try {
 			logger.info("Create new employee with request details id = " + id + " employeeData = " + employeeData);
 			
-			Optional<EmployeeDataEntity> employeeRecById = employeeDataRepo.findById(id);
-			logger.info("Employee details find by id results :: " + employeeRecById);
-			
-			Optional<EmployeeDataEntity> employeeRecByLogin = employeeDataRepo.findByLogin(employeeData.getLogin());
-			logger.info("Employee details find by login results :: " + employeeRecByLogin);
-			
-			if(employeeRecById.isEmpty() && employeeRecByLogin.isEmpty()) {
-				EmployeeDataEntity data = new EmployeeDataEntity();
-					data.setId(id);
-					data.setLogin(employeeData.getLogin());
-					data.setName(employeeData.getName());
-					data.setSalary(employeeData.getSalary());
-					
-					EmployeeDataEntity saveResp = employeeDataRepo.save(data);
-					logger.info("Saved new employee data => " + saveResp);
-					if(saveResp != null) {
-						responseData.setResponseCode(HttpStatus.OK.value());
-						responseData.setMessage("New employee data saved successfully");
-					} else {
-						responseData.setResponseCode(HttpStatus.OK.value());
-						responseData.setMessage("Error in saving employee data");
-					}
+			if(validatorService.validateEmployeeDataRequest(id, employeeData)) {
+				Optional<EmployeeDataEntity> employeeRecById = employeeDataRepo.findById(id);
+				logger.info("Employee details find by id results :: " + employeeRecById);
+				
+				Optional<EmployeeDataEntity> employeeRecByLogin = employeeDataRepo.findByLogin(employeeData.getLogin());
+				logger.info("Employee details find by login results :: " + employeeRecByLogin);
+				
+				if(employeeRecById.isEmpty() && employeeRecByLogin.isEmpty()) {
+					EmployeeDataEntity data = new EmployeeDataEntity();
+						data.setId(id);
+						data.setLogin(employeeData.getLogin());
+						data.setName(employeeData.getName());
+						data.setSalary(employeeData.getSalary());
+						
+						EmployeeDataEntity saveResp = employeeDataRepo.save(data);
+						logger.info("Saved new employee data => " + saveResp);
+						if(saveResp != null) {
+							responseData.setResponseCode(HttpStatus.OK.value());
+							responseData.setMessage("New employee data saved successfully");
+						} else {
+							responseData.setResponseCode(HttpStatus.OK.value());
+							responseData.setMessage("Error in saving employee data");
+						}
+				} else {
+					responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
+					responseData.setMessage("Employee data already exists with given id or login details");
+				}
 			} else {
 				responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
-				responseData.setMessage("Employee data already exists with given id or login details");
+				responseData.setMessage("Request validation failed");
 			}
+			
+			
 		} catch (Exception e) {
 			logger.error("Error in retrieveUserDetails => " + e.getMessage());
 			responseData.setResponseCode(HttpStatus.BAD_REQUEST.value());
