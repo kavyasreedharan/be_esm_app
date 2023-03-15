@@ -11,10 +11,13 @@ ESM application is a backend Java Spring Boot application developed in order to 
 6) Display all employee records in dashboard. Filter using salary. Sort by ID, Login, Name or Salary fields in ascending or descending order
 7) Upload employees' data using CSV file
 
-## Tecnologies
+## Tecnologies / Frameworks/ Libraries
 1) Java
 2) Spring Boot
 3) Spring Data
+4) H2 database
+5) Lombok
+6) Opencsv
 
 ## Installation
 1) Download or check out source code for be_esm_app
@@ -31,7 +34,12 @@ ESM application is a backend Java Spring Boot application developed in order to 
 Test data for file upload is available in below location
 	be_esm_app\esmapp\src\test\resources\
 	
-
+# DB Schema
+	CREATE TABLE esm_employee_data(
+	id VARCHAR(50) PRIMARY KEY NOT NULL,
+	login VARCHAR(50) UNIQUE NOT NULL,
+	name VARCHAR(75)  NOT NULL,
+	salary REAL NOT NULL);
 
 
 
