@@ -1,9 +1,6 @@
 # be_esm_app
 Backend source code of MVP Employee Salary Management Application
 
-#Employee Salary Management (ESM) Backend Application
-#-------------------------------------------------------
-
 ## About the application
 ESM application is a backend Java Spring Boot application developed in order to help the HR department to manage the employees' salaries. This application helps to expose REST based web services. Using this application we can perform below functionalities.
 1) Add new employee data
@@ -15,9 +12,9 @@ ESM application is a backend Java Spring Boot application developed in order to 
 7) Upload employees' data using CSV file
 
 ## Tecnologies
-Java
-Spring Boot
-Spring Data
+1) Java
+2) Spring Boot
+3) Spring Data
 
 ## Installation
 1) Download or check out source code for be_esm_app
@@ -30,6 +27,9 @@ Spring Data
    Note: Application is configured to start in 8080 port. If this port is already in use, kindly change the port number in application.properties file.
 	server.port = 9090
 	
+## Note
+Test data for file upload is available in below location
+	be_esm_app\esmapp\src\test\resources\
 	
 
 
